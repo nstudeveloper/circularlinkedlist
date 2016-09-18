@@ -56,29 +56,102 @@ void iterMenu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Itera
 	cout << "2: Перейти к следующему" << endl;
 	cout << "3: Указывает ли итератор на элемент ?" << endl;
 	cout << "4: Итератор: прочитать" << endl;
-	cout << "2: Перейти к следующему" << endl;
+	cout << "5: Назад" << endl;
+
 	cin >> choose;
 	switch (choose) {
 	case 1:
 		iter->beg();
-		menu(list, iter);
+		iterMenu(list, iter);
 		break;
 	case 2:
 		iter->next();
-		menu(list, iter);
+		iterMenu(list, iter);
 		break;
 	case 3:
-		cout << iter->isValid();
 		system("cls");
-		menu(list, iter);
+		iter->isValid() ? cout << "Указывает" << endl : cout << "Не указывает" << endl;
+		system("pause");
+		iterMenu(list, iter);
 		break;
 	case 4:
 //		cout << **iter << endl;
 		system("cls");
 		break;
 	case 5:
+		menu(list, iter);
+		system("cls");
 		break;
 	case 6:
+		break;
+	}
+}
+
+template <typename T>
+T getValidatedInput()
+{
+	T result;
+	cin >> result;
+
+	if (cin.fail() || cin.get() != '\n')
+	{
+		cin.clear();
+
+		while (cin.get() != '\n')
+			;
+
+		throw ios_base::failure("Invalid input.");
+	}
+	return result;
+}
+
+template<typename T>
+T validate() {
+	while (true)
+	{
+		try
+		{
+			return getValidatedInput<T>();
+		}
+		catch (exception e)
+		{
+			cerr << e.what() << endl;
+			continue;
+		}
+
+		break;
+	}
+}
+
+template<class T>
+void testMenu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Iterator *iter)
+{
+	system("cls");
+	int choose;
+	cout << "Меню для тестирования" << endl;
+	cout << "1: Запустить тест" << endl;
+	cout << "2: Назад" << endl;
+	cin >> choose;
+	switch (choose) {
+	case 1:
+		system("cls");
+		int n;
+		cout << "Количество вставок: " << endl;
+		cin >> n;
+		for (int i = 0; i < n; i++) {
+			/*if (i % 3 == 0) {
+				int position = rand() % (list->getListSize() + 1 - 0);
+				list->removeByPosition(position);
+			}*/
+			int value = rand();
+			list->insert(value);
+		}
+		cout << "Выполнено!" << endl;
+		system("pause");
+		testMenu(list, iter);
+		break;
+	case 2:
+		menu(list, iter);
 		break;
 	}
 }
@@ -86,7 +159,8 @@ void iterMenu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Itera
 template<class T>
 void menu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Iterator *iter) {
 	system("cls");
-	int choose, position, value = -1;
+	int choose, position =  -1;
+	T value;
 	cout << "Menu" << endl;
 	cout << "1: Опрос размера списка" << endl;
 	cout << "2: Очистка списка" << endl;
@@ -101,7 +175,9 @@ void menu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Iterator 
 	cout << "11: Удаление значения из позиции с заданным номером" << endl;
 	cout << "12: Показать весь список" << endl;
 	cout << "13: Операции с итератором" << endl;
-
+	cout << "14: Тестирование" << endl;
+	cout << "15: Выход" << endl;
+	
 	cin >> choose;
 	switch (choose) {
 		case 1:
@@ -160,10 +236,8 @@ void menu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Iterator 
 			break;
 		case 8:
 			system("cls");
-			cout << "Введите значение для вставки" << endl;
-			cin >> value;
+			value = validate<T>();
 			list->insert(value);
-			cout << "Значение вставлено" << endl;
 			system("pause");
 			menu(list, iter);
 			break;
@@ -200,12 +274,16 @@ void menu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Iterator 
 		case 13:
 			iterMenu(list, iter);
 			break;
+		case 14:
+			testMenu(list, iter);
+			break;
+		case 15:
+			break;
 		default:
 			cout << "Choose correct function" << endl;
 			break;
 		}
 }
-
 
 int main() {
 	setlocale(LC_ALL, "russian");

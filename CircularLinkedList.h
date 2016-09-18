@@ -5,6 +5,7 @@ template<class T>
 class CircularLinkedList
 {
 	int listSize;
+	int operation;
 	class Node {
 	public:
 		T value;
@@ -13,6 +14,21 @@ class CircularLinkedList
 		T getValue() { return this->value; }
 	};
 	void deleteNode(Node *current, Node *prev);
+	template <typename T>
+	T getValidatedInput(T result)
+	{
+		if (cin.fail() || cin.get() != '\n')
+		{
+			cin.clear();
+						
+			while (cin.get() != '\n')
+				;
+
+			throw ios_base::failure("Invalid input.");
+		}
+		return result;
+	}
+
 public:
 	CircularLinkedList();
 	Node *dummy;
@@ -76,7 +92,9 @@ template<class T>
 void CircularLinkedList<T>::Iterator::next() {
 	if (valid) {
 		curr = curr->next;
-		if (curr == list->dummy) valid = false;
+		if (curr == list->dummy) {
+			valid = false;
+		}
 	}
 }
 
@@ -90,6 +108,7 @@ T CircularLinkedList<T>::Iterator::getValue() {
 	return this->curr->value;
 }
 
+// Linked list
 template<typename T>
 void CircularLinkedList<T>::deleteNode(Node *current, Node *prev)
 {
@@ -104,6 +123,7 @@ CircularLinkedList<T>::CircularLinkedList()
 	dummy = new Node(T());
 	dummy->next = dummy;
 	listSize = 0;
+	operation = 0;
 }
 
 template<typename T>
@@ -145,12 +165,13 @@ bool CircularLinkedList<T>::removeByValue(T value)
 	if (isEmpty()) {
 		return false;
 	}
-
+	operation = 0;
 	Node *current = dummy->next, *prev = dummy;
 	while (current != dummy) {
 		if (current->value == value) break;
 		prev = current;
 		current = current->next;
+		operation++;
 	}
 
 	if (current == dummy) {
