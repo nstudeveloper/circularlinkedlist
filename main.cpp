@@ -75,8 +75,10 @@ void iterMenu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Itera
 		iterMenu(list, iter);
 		break;
 	case 4:
-//		cout << **iter << endl;
 		system("cls");
+		cout << iter->getValue() << endl;
+		system("pause");
+		iterMenu(list, iter);
 		break;
 	case 5:
 		menu(list, iter);
