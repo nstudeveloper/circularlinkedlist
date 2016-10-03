@@ -3,30 +3,16 @@
 #include "CircularLinkedList.h"
 using namespace std;
 // 8.	Структура данных – кольцевая, односвязная на базе адресных указателей с использованием фиктивного элемента.
-/*
-int main(){
-	CircularLinkedList<int> list;
-	cout << list.isEmpty() << endl;
-	list.insert(5);
-	list.insert(1510);
-	list.insert(15);
-	list.insert(1220);
-	list.insert(52);
-	list.insert(120, 2);
-	cout << list.isEmpty() << endl;
-	list.clear();
-	cout << list.isEmpty() << endl;
-	list.updateValueByPosition(145, 2);
-}
-*/
 
 template<class T>
 void displayList(CircularLinkedList<T>* list) {
 	system("cls");
 	CircularLinkedList<T>::Iterator iter = list->iterator();
-	while (iter.isValid()) {
+	int listSize = list->getListSize();
+	while (listSize > 0) {
 		cout << iter.getValue() << endl;
 		iter.next();
+		listSize--;
 	}
 	system("pause");
 }
@@ -75,8 +61,10 @@ void iterMenu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Itera
 		iterMenu(list, iter);
 		break;
 	case 4:
-//		cout << **iter << endl;
 		system("cls");
+		cout << iter->getValue() << endl;
+		system("pause");
+		iterMenu(list, iter);
 		break;
 	case 5:
 		menu(list, iter);
@@ -130,7 +118,10 @@ void testMenu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Itera
 	int choose;
 	cout << "Меню для тестирования" << endl;
 	cout << "1: Запустить тест" << endl;
-	cout << "2: Назад" << endl;
+	cout << "2: Количество операций при вставке" << endl;
+	cout << "3: Количество операций при удалении" << endl;
+	cout << "4: Количество операций при поиске" << endl;
+	cout << "5: Назад" << endl;
 	cin >> choose;
 	switch (choose) {
 	case 1:
@@ -138,11 +129,13 @@ void testMenu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Itera
 		int n;
 		cout << "Количество вставок: " << endl;
 		cin >> n;
-		for (int i = 0; i < n; i++) {
-			/*if (i % 3 == 0) {
+		for (int i = 1; i < n; i++) {
+			if (i % 3 == 0) {
 				int position = rand() % (list->getListSize() + 1 - 0);
 				list->removeByPosition(position);
-			}*/
+				position = rand() % (list->getListSize() + 1 - 0);
+				list->insert(rand(), position);
+			}
 			int value = rand();
 			list->insert(value);
 		}
@@ -151,6 +144,21 @@ void testMenu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Itera
 		testMenu(list, iter);
 		break;
 	case 2:
+		cout << "Вставка: " << list->getInsertOperation() << endl;
+		system("pause");
+		testMenu(list, iter);
+		break;
+	case 3:
+		cout << "Удаления: " << list->getRemoveOperation() << endl;
+		system("pause");
+		testMenu(list, iter);
+		break;
+	case 4:
+		cout << "Поиск: " << list->getSearchOperation() << endl;
+		system("pause");
+		testMenu(list, iter);
+		break;
+	case 5:
 		menu(list, iter);
 		break;
 	}
@@ -161,6 +169,7 @@ void menu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Iterator 
 	system("cls");
 	int choose, position =  -1;
 	T value;
+	char *outOfRange = "Exception occured: index out of range";
 	cout << "Menu" << endl;
 	cout << "1: Опрос размера списка" << endl;
 	cout << "2: Очистка списка" << endl;
@@ -211,7 +220,12 @@ void menu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Iterator 
 			system("cls");
 			cout << "Введите позицию для поиска" << endl;
 			cin >> position;
-			cout << list->read(position) << endl;
+			try {
+				cout << list->read(position) << endl;
+			}
+			catch (out_of_range) {
+				cout << outOfRange << endl;
+			}
 			system("pause");
 			menu(list, iter);
 			break;
@@ -230,7 +244,12 @@ void menu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Iterator 
 			system("cls");
 			cout << "Введите значение для поиска позиции" << endl;
 			cin >> value;
-			cout << "Позиция: " << list->getPositionByValue(value) << endl;
+			try {
+				cout << "Позиция: " << list->getPositionByValue(value) << endl;
+			}
+			catch (out_of_range) {
+				cout << outOfRange << endl;
+			}
 			system("pause");
 			menu(list, iter);
 			break;
@@ -247,7 +266,12 @@ void menu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Iterator 
 			cin >> value;
 			cout << "Позиция для вставки: " << endl;
 			cin >> position;
-			list->insert(value, position) ? cout << "Значение вставлено!" << endl : cout << "Значение не вставлено" << endl;
+			try {
+				list->insert(value, position);
+			}
+			catch (out_of_range) {
+				cout << outOfRange << endl;
+			}
 			system("pause");
 			menu(list, iter);
 			break;
@@ -263,7 +287,12 @@ void menu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Iterator 
 			system("cls");
 			cout << "Введите позицию для удаления" << endl;
 			cin >> position;
-			list->removeByPosition(position) ? cout << "Значение удалено!" << endl : cout << "Значение не удалено" << endl;
+			try {
+				list->removeByPosition(position);
+			}
+			catch (out_of_range) {
+				cout << outOfRange << endl;
+			}
 			system("pause");
 			menu(list, iter);
 			break;
@@ -281,6 +310,7 @@ void menu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Iterator 
 			break;
 		default:
 			cout << "Choose correct function" << endl;
+			system("pause");
 			break;
 		}
 }

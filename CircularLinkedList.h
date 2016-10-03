@@ -5,7 +5,9 @@ template<class T>
 class CircularLinkedList
 {
 	int listSize;
-	int operation;
+	int removeOperation;
+	int searchOperation;
+	int insertOperation;
 	class Node {
 	public:
 		T value;
@@ -33,8 +35,8 @@ public:
 	CircularLinkedList();
 	Node *dummy;
 	void insert(T); // включение нового значения
-	bool insert(T, int); // включение нового значения в позицию с заданным номером
-	bool removeByPosition(int position);
+	void insert(T, int); // включение нового значения в позицию с заданным номером
+	void removeByPosition(int position);
 	bool removeByValue(T); // удаление заданного значения из списка
 	bool updateValueByPosition(T, int); // изменение значения с заданным номером в списке
 	T read(int); // чтение значения с заданным номером в списке
@@ -44,6 +46,10 @@ public:
 	bool isEmpty(); // проверка списка на пустоту
 	void clear(); // очистка списка
 	bool isExist(T); // опрос наличия заданного значения
+	
+	int getSearchOperation();
+	int getInsertOperation();
+	int getRemoveOperation();
 
 	class Iterator {
 		CircularLinkedList *list;
@@ -92,8 +98,9 @@ template<class T>
 void CircularLinkedList<T>::Iterator::next() {
 	if (valid) {
 		curr = curr->next;
+		// После последнего узла прыгать на первый или за фиктивный ?
 		if (curr == list->dummy) {
-			valid = false;
+			curr = curr->next;
 		}
 	}
 }
@@ -123,7 +130,7 @@ CircularLinkedList<T>::CircularLinkedList()
 	dummy = new Node(T());
 	dummy->next = dummy;
 	listSize = 0;
-	operation = 0;
+	removeOperation = insertOperation = searchOperation = 0;
 }
 
 template<typename T>
@@ -136,27 +143,24 @@ void CircularLinkedList<T>::insert(T value)
 }
 
 template<typename T>
-bool CircularLinkedList<T>::insert(T value, int position)
+void CircularLinkedList<T>::insert(T value, int position)
 {
 	int i = 0;
-	if (position > listSize) return false;
-
+	if (position > listSize || position < 0) {
+		throw out_of_range ("Out of range exception");
+	}
 	Node *current = dummy;
 	while (current->next != dummy) {
+		insertOperation++;
 		if (i == position) break;
 		i++;
 		current = current->next;
 	}
-	if (i != position) {
-		return false;
-	}
-	else {
-		Node *node = new Node(value);
-		node->next = current->next;
-		current->next = node;
-		listSize++;
-		return true;
-	}
+	
+	Node *node = new Node(value);
+	node->next = current->next;
+	current->next = node;
+	listSize++;
 }
 
 template<typename T>
@@ -165,13 +169,12 @@ bool CircularLinkedList<T>::removeByValue(T value)
 	if (isEmpty()) {
 		return false;
 	}
-	operation = 0;
 	Node *current = dummy->next, *prev = dummy;
 	while (current != dummy) {
 		if (current->value == value) break;
 		prev = current;
 		current = current->next;
-		operation++;
+		removeOperation++;
 	}
 
 	if (current == dummy) {
@@ -183,30 +186,47 @@ bool CircularLinkedList<T>::removeByValue(T value)
 }
 
 template<typename T>
-bool CircularLinkedList<T>::removeByPosition(int position)
+void CircularLinkedList<T>::removeByPosition(int position)
 {
 	int i = 0;
-	if (position > listSize) return false;
+	removeOperation = 0;
+	if (position > listSize || position < 0 || isEmpty()) {
+		throw out_of_range("Out of range exception");
+	}
 	Node *current = dummy->next, *prev = dummy;
 	while (current != dummy) {
 		if (i == position) break;
 		i++;
 		prev = current;
 		current = current->next;
+		removeOperation++;
 	}
-	if (i != position || isEmpty() || current == dummy) {
-		return false;
-	}
-	else {
-		deleteNode(current, prev);
-		return true;
-	}
+	
+	deleteNode(current, prev);
 }
 
 template<typename T>
 int CircularLinkedList<T>::getListSize()
 {
 	return listSize;
+}
+
+template<typename T>
+int CircularLinkedList<T>::getInsertOperation()
+{
+	return insertOperation;
+}
+
+template<typename T>
+int CircularLinkedList<T>::getSearchOperation()
+{
+	return searchOperation;
+}
+
+template<typename T>
+int CircularLinkedList<T>::getRemoveOperation()
+{
+	return removeOperation;
 }
 
 template<typename T>
@@ -266,8 +286,8 @@ bool CircularLinkedList<T>::isExist(T value)
 template<typename T>
 T CircularLinkedList<T>::read(int position)
 {
-	if (position > listSize || position < 0) {
-		return false;
+	if (position > listSize || position < 0 || isEmpty()) {
+		throw out_of_range("Out of range exception");
 	}
 
 	Node* current = dummy->next;
@@ -283,13 +303,15 @@ template<typename T>
 int CircularLinkedList<T>::getPositionByValue(T value)
 {
 	Node *current = dummy->next; int i = 0;
-	while (current != dummy) {
-		if (current->value == value) { break; }
+	while (true) {
+		searchOperation++;
+		if (current->value == value) {
+			return i;
+		}
 		i++;
 		current = current->next;
-		if (i > listSize) { break; }
+		if (i > this->getListSize()) {
+			throw out_of_range("Out of range exception");
+		}
 	}
-	return i;
-
-	// Exception
 }
