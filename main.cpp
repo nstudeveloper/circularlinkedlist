@@ -316,6 +316,7 @@ void menu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Iterator 
 }
 
 int main() {
+	//changed encoding
 	setlocale(LC_ALL, "russian");
 	CircularLinkedList<long>* empty = new CircularLinkedList<long>();
 	CircularLinkedList<long>::Iterator *iter = &empty->iterator();
