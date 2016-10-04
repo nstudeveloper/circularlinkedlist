@@ -236,7 +236,12 @@ void menu(CircularLinkedList<T>* list, typename CircularLinkedList<T>::Iterator 
 			system("cls");
 			cout << "Введите новое значение" << endl;
 			cin >> value;
-			list->updateValueByPosition(value, position) ? cout << "Значение изменено!" << endl : cout << "Значение не изменено" << endl;
+			try {
+				list->updateValueByPosition(value, position) ? cout << "Значение изменено!" << endl : cout << "Значение не изменено" << endl;
+			} 
+			catch (out_of_range) {
+				cout << outOfRange << endl;
+			}
 			system("pause");
 			menu(list, iter);
 			break;

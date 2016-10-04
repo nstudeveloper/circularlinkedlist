@@ -251,8 +251,8 @@ void CircularLinkedList<T>::clear()
 template<typename T>
 bool CircularLinkedList<T>::updateValueByPosition(T value, int position)
 {
-	if (isEmpty()) {
-		return false;
+	if (position > listSize || position < 0 || isEmpty()) {
+		throw out_of_range("Out of range exception");
 	}
 	int i = 0;
 	Node* current = dummy->next;
